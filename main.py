@@ -3,6 +3,7 @@ from flask_cors import CORS,cross_origin
 import pickle
 import pandas as pd
 import numpy as np
+import datetime
 
 app=Flask(__name__)
 cors=CORS(app)
@@ -15,9 +16,10 @@ def index():
     car_models=sorted(car['name'].unique())
     year=sorted(car['year'].unique(),reverse=True)
     fuel_type=car['fuel_type'].unique()
+    currentyear =datetime.date.today().year
 
     companies.insert(0,'Select Company')
-    return render_template('index.html',companies=companies, car_models=car_models, years=year,fuel_types=fuel_type)
+    return render_template('index.html',companies=companies, car_models=car_models, years=year,fuel_types=fuel_type,cyr=currentyear)
 
 
 @app.route('/predict',methods=['POST'])
@@ -30,12 +32,19 @@ def predict():
     year=request.form.get('year')
     fuel_type=request.form.get('fuel_type')
     driven=request.form.get('kilo_driven')
+    if company=="" or car_model=="" or fuel_type=="" or driven=='':
+        return "error"
+    elif not driven.isnumeric():
+        return "error2"
 
-    prediction=model.predict(pd.DataFrame(columns=['name', 'company', 'year', 'kms_driven', 'fuel_type'],
+
+    else:
+
+
+     prediction=model.predict(pd.DataFrame(columns=['name', 'company', 'year', 'kms_driven', 'fuel_type'],
                               data=np.array([car_model,company,year,driven,fuel_type]).reshape(1, 5)))
-    print(prediction)
 
-    return str(np.round(prediction[0],2))
+     return str(np.round(prediction[0], 2))
 
 
 
